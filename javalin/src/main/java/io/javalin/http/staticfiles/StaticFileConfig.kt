@@ -41,6 +41,8 @@ fun interface AliasCheck {
  * @param precompressMaxSize if the files should be pre-compressed and cached in memory (default: -1, disabled)
  * @param aliasCheck can be used to configure SymLinks
  * @param headers headers that will be set for the static files
+ * @param cacheControl custom Cache-Control header value (takes precedence over headers map, null means not set)
+ * @param enableCacheControl whether to include Cache-Control header (default: true)
  * @param skipFileFunction lambda to skip certain files in the dir, based on the HttpServletRequest
  * @param mimeTypes configuration for file extension based Mime Types
  * @see [StaticFilesConfig]
@@ -52,6 +54,8 @@ data class StaticFileConfig(
     @JvmField var precompressMaxSize: Int = -1, // -1 means disabled, otherwise set the max size for pre-compression
     @JvmField var aliasCheck: AliasCheck? = null,
     @JvmField var headers: Map<String, String> = mutableMapOf(Header.CACHE_CONTROL to "max-age=0"),
+    @JvmField var cacheControl: String? = null,
+    @JvmField var enableCacheControl: Boolean = true,
     @JvmField var skipFileFunction: ((HttpServletRequest) -> Boolean)? = null,
     @JvmField val mimeTypes: MimeTypesConfig = MimeTypesConfig(),
     @JvmField var roles: Set<RouteRole> = emptySet()

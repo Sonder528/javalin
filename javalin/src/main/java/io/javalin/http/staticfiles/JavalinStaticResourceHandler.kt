@@ -45,7 +45,14 @@ class JavalinStaticResourceHandler : ResourceHandler {
     override fun handle(ctx: Context): Boolean {
         val (handler, resourcePath) = findHandler(ctx) ?: return false
         try {
-            handler.config.headers.forEach { ctx.header(it.key, it.value) }
+            if (handler.config.enableCacheControl) {
+                val cacheControlValue = handler.config.cacheControl
+                    ?: handler.config.headers[Header.CACHE_CONTROL]
+                cacheControlValue?.let { ctx.header(Header.CACHE_CONTROL, it) }
+            }
+            handler.config.headers
+                .filterKeys { it != Header.CACHE_CONTROL }
+                .forEach { ctx.header(it.key, it.value) }
             return if (handler.config.precompressMaxSize > 0) {
                 handlePrecompressed(resourcePath, ctx, compressionStrategy, handler)
             } else {
