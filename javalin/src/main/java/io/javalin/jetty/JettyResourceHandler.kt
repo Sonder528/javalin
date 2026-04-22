@@ -45,7 +45,13 @@ class JettyResourceHandler : JavalinResourceHandler {
     override fun handle(ctx: Context): Boolean {
         val (handler, resourcePath) = findHandler(ctx) ?: return false
         try {
-            handler.config.headers.forEach { ctx.header(it.key, it.value) }
+            if (handler.config.enableCacheControl) {
+                handler.config.headers.forEach { ctx.header(it.key, it.value) }
+            } else {
+                handler.config.headers
+                    .filterKeys { it != Header.CACHE_CONTROL }
+                    .forEach { ctx.header(it.key, it.value) }
+            }
             return if (handler.config.precompressMaxSize > 0) {
                 precompressingHandler.handle(resourcePath, ctx, compressionStrategy, handler)
             } else {
